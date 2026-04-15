@@ -1,1 +1,48 @@
 @import "tailwindcss";
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-modal-in {
+  animation: modal-in 200ms ease-out forwards;
+}
+
+/* Hides the scrollbar visually while keeping scroll functionality.
+   Used on the sidenav menu list so the dark sidebar stays clean. */
+.scrollbar-hide {
+  -ms-overflow-style: none;   /* IE / Edge */
+  scrollbar-width: none;      /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;              /* Chrome / Safari / Opera */
+}
+
+/* Styled thin horizontal scrollbar for the data table.
+   Blends with the card background — unobtrusive but visible. */
+.scrollbar-table {
+  scrollbar-width: thin;
+  scrollbar-color: #D1D5DB transparent;  /* Firefox: thumb track */
+}
+.scrollbar-table::-webkit-scrollbar {
+  height: 4px;
+}
+.scrollbar-table::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-table::-webkit-scrollbar-thumb {
+  background-color: #D1D5DB;
+  border-radius: 9999px;
+  cursor: pointer;
+}
+.scrollbar-table::-webkit-scrollbar-thumb:hover {
+  background-color: #9CA3AF;
+  cursor: pointer;
+}

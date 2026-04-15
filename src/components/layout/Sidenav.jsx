@@ -8,7 +8,11 @@ import {
   FaChartBar,
   FaCog,
   FaChevronLeft,
-  FaChevronRight
+  FaChevronRight,
+  FaBuilding,
+  FaHardHat,
+  FaLink,
+  FaTags,
 } from 'react-icons/fa';
 
 import Section from './SideNav/Section';
@@ -18,24 +22,22 @@ function Sidenav() {
   const [collapsed, setCollapsed] = useState(false);
   const [openSections, setOpenSections] = useState({
     attendance: true,
-    payroll: true,
-    cost: true,
-    master: true,
+    payroll:    false,
+    cost:       false,
+    master:     true,
   });
 
   const toggleSection = (key) => {
-    setOpenSections(prev => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
     <div
-        className={`min-h-screen bg-[#1C2536] text-white transition-all duration-300 ease-in-out
+      className={`shrink-0 h-screen flex flex-col bg-[#1C2536] text-white transition-all duration-300 ease-in-out
         ${collapsed ? 'w-16' : 'w-64'} relative`}
-        >
-      <div className="p-4">
+    >
+      {/* Header — fixed, never scrolls */}
+      <div className="shrink-0 p-4">
         {!collapsed && (
           <>
             <h2 className="text-sm font-semibold">工事管理システム</h2>
@@ -44,17 +46,19 @@ function Sidenav() {
         )}
       </div>
 
-      <div className="px-2 space-y-2">
-        <MenuItem icon={<FaTachometerAlt />} label="Dashboard" collapsed={collapsed} />
+      {/* Nav items — scrolls independently when content overflows */}
+      <div className="flex-1 overflow-y-auto scrollbar-hide px-2 space-y-2 pb-4">
+        <MenuItem icon={<FaTachometerAlt />} label="Dashboard" collapsed={collapsed} to="/" />
+
         <Section
           title="ATTENDANCE"
           collapsed={collapsed}
           open={openSections.attendance}
           onClick={() => toggleSection('attendance')}
         >
-          <MenuItem icon={<FaCalendarAlt />} label="Attendance List" collapsed={collapsed} />
-          <MenuItem icon={<FaUsers />} label="Subcontractor Reports" collapsed={collapsed} />
-          <MenuItem icon={<FaFileInvoice />} label="Closing Management" collapsed={collapsed} />
+          <MenuItem icon={<FaCalendarAlt />}  label="Attendance List"       collapsed={collapsed} to="/attendance-list" />
+          <MenuItem icon={<FaUsers />}        label="Subcontractor Reports" collapsed={collapsed} />
+          <MenuItem icon={<FaFileInvoice />}  label="Closing Management"    collapsed={collapsed} />
         </Section>
 
         <Section
@@ -64,7 +68,7 @@ function Sidenav() {
           onClick={() => toggleSection('payroll')}
         >
           <MenuItem icon={<FaMoneyBill />} label="Payroll Base Data" collapsed={collapsed} />
-          <MenuItem icon={<FaChartBar />} label="MoneyForward" collapsed={collapsed} active />
+          <MenuItem icon={<FaChartBar />}  label="MoneyForward"      collapsed={collapsed} />
         </Section>
 
         <Section
@@ -73,9 +77,9 @@ function Sidenav() {
           open={openSections.cost}
           onClick={() => toggleSection('cost')}
         >
-          <MenuItem icon={<FaChartBar />} label="Cost Summary" collapsed={collapsed} />
-          <MenuItem icon={<FaMoneyBill />} label="Site Expenses" collapsed={collapsed} />
-          <MenuItem icon={<FaFileInvoice />} label="Dotto Genka" collapsed={collapsed} />
+          <MenuItem icon={<FaChartBar />}   label="Cost Summary"  collapsed={collapsed} />
+          <MenuItem icon={<FaMoneyBill />}  label="Site Expenses" collapsed={collapsed} />
+          <MenuItem icon={<FaFileInvoice />}label="Dotto Genka"   collapsed={collapsed} />
         </Section>
 
         <MenuItem icon={<FaFileInvoice />} label="OCR Management" collapsed={collapsed} />
@@ -86,17 +90,16 @@ function Sidenav() {
           open={openSections.master}
           onClick={() => toggleSection('master')}
         >
-          <MenuItem icon={<FaUsers />} label="Employees" collapsed={collapsed} />
-          <MenuItem icon={<FaUsers />} label="Sites" collapsed={collapsed} />
-          <MenuItem icon={<FaUsers />} label="Subcontractors" collapsed={collapsed} />
-          <MenuItem icon={<FaUsers />} label="Workers" collapsed={collapsed} />
-          <MenuItem icon={<FaUsers />} label="Site Assignments" collapsed={collapsed} />
-          <MenuItem icon={<FaMoneyBill />} label="Rates" collapsed={collapsed} />
-          <MenuItem icon={<FaCalendarAlt />} label="Calendar" collapsed={collapsed} />
-          <MenuItem icon={<FaFileInvoice />} label="Categories" collapsed={collapsed} />
-          <MenuItem icon={<FaCog />} label="Settings" collapsed={collapsed} />
+          <MenuItem icon={<FaUsers />}       label="Employees"        collapsed={collapsed} to="/master/employees"        />
+          <MenuItem icon={<FaBuilding />}    label="Sites"            collapsed={collapsed} to="/master/sites"            />
+          <MenuItem icon={<FaFileInvoice />} label="Subcontractors"   collapsed={collapsed} to="/master/subcontractors"   />
+          <MenuItem icon={<FaHardHat />}     label="Workers"          collapsed={collapsed} to="/master/workers"          />
+          <MenuItem icon={<FaLink />}        label="Site Assignments"  collapsed={collapsed} to="/master/site-assignments" />
+          <MenuItem icon={<FaMoneyBill />}   label="Rates"            collapsed={collapsed} to="/master/rates"            />
+          <MenuItem icon={<FaCalendarAlt />} label="Calendar"         collapsed={collapsed} />
+          <MenuItem icon={<FaTags />}        label="Categories"       collapsed={collapsed} to="/master/categories"       />
+          <MenuItem icon={<FaCog />}         label="Settings"         collapsed={collapsed} />
         </Section>
-
       </div>
 
       <button
