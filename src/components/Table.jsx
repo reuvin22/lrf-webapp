@@ -15,7 +15,7 @@ import FormModal from './modals/FormModal';
  *
  */
 
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 5;
 
 const Table = ({
   title = 'Records',
@@ -24,6 +24,10 @@ const Table = ({
   loading = false,
   fields = [],
   formColumns = 2,
+  defaultValues = {},
+  segmentTabs = [],
+  activeSegment = '',
+  onSegmentChange,
   searchKeys = [],
   searchPlaceholder = 'Search...',
   statusOptions = [],
@@ -47,7 +51,7 @@ const Table = ({
   // Sync when the parent passes fresh data (e.g. after an async fetch resolves)
   useEffect(() => { setRecords(dataProp ?? []); }, [dataProp]);
 
-  useEffect(() => { setPage(1); }, [search, statusFilter]);
+  useEffect(() => { setPage(1); }, [search, statusFilter, activeSegment]);
 
   const keysToSearch = searchKeys.length > 0 ? searchKeys : columns.map((c) => c.key);
 
@@ -169,6 +173,25 @@ const Table = ({
           </button>
         </div>
 
+        {/* ── Segment Tabs ────────────────────────────────────────────────────── */}
+        {segmentTabs.length > 0 && (
+          <div className="px-4 md:px-5 flex gap-1 border-b border-gray-100 dark:border-gray-700">
+            {segmentTabs.map((tab) => (
+              <button
+                key={tab.value}
+                onClick={() => onSegmentChange?.(tab.value)}
+                className={`cursor-pointer px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                  activeSegment === tab.value
+                    ? 'border-[#0F9D7A] text-[#0F9D7A] dark:text-[#0F9D7A]'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* ── Search & Filter ─────────────────────────────────────────────────── */}
         <div className="px-4 md:px-5 py-3 flex flex-col md:flex-row gap-3 border-b border-gray-100 dark:border-gray-700">
           <div className="relative flex-1">
@@ -222,7 +245,7 @@ const Table = ({
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {loading ? (
                 <tr>
-                  <td colSpan={columns.length + 1} className="h-[477px]">
+                  <td colSpan={columns.length + 1} className="h-[265px]">
                     <div className="flex flex-col items-center justify-center gap-3 h-full">
                       <div className="w-11 h-11 rounded-full border-4 border-gray-200 dark:border-gray-600 border-t-[#0F9D7A] animate-spin" />
                       <p className="text-sm text-gray-400 dark:text-gray-500">Working on it...</p>
@@ -275,7 +298,7 @@ const Table = ({
                           </button>
                           <button
                             onClick={() => setPendingDelete(row)}
-                            className="cursor-pointer text-[#EF4444] hover:text-red-700 transition-colors"
+                            className="cursor-pointer hover:text-red-700 transition-colors"
                             aria-label="Delete"
                           >
                             <UserMinus size={15} />
@@ -361,7 +384,7 @@ const Table = ({
         }
         fields={fields}
         columns={formColumns}
-        initialValues={formModal.record ?? {}}
+        initialValues={formModal.mode === 'add' ? defaultValues : (formModal.record ?? {})}
         submitting={submitting}
         onSubmit={handleFormSubmit}
         onClose={closeForm}

@@ -60,33 +60,50 @@ const FieldRenderer = ({ field, value, error, disabled, onChange }) => {
     );
 
   } else if (field.type === 'radio') {
-    control = (
-      <div className="flex flex-wrap gap-x-5 gap-y-2 pt-1">
-        {(field.options ?? []).map((opt) => {
-          const val = typeof opt === 'object' ? opt.value : opt;
-          const lbl = typeof opt === 'object' ? opt.label : opt;
-          return (
-            <label
-              key={val}
-              className={`flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 ${
-                disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
-              }`}
-            >
-              <input
-                type="radio"
-                name={field.name}
-                value={val}
-                checked={value === val}
-                disabled={disabled}
-                onChange={() => onChange(field.name, val)}
-                className="accent-[#0F9D7A]"
-              />
-              {lbl}
-            </label>
-          );
-        })}
-      </div>
-    );
+    if (disabled) {
+      // View mode — show the current value as a readable pill instead of
+      // disabled radio inputs (avoids checked-state visibility issues).
+      const matched = (field.options ?? []).find((opt) => {
+        const val = typeof opt === 'object' ? opt.value : opt;
+        return val === value;
+      });
+      const display = matched
+        ? (typeof matched === 'object' ? matched.label : matched)
+        : (value ?? '—');
+
+      control = (
+        <div className="pt-1">
+          <span className="inline-block px-3 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+            {display}
+          </span>
+        </div>
+      );
+    } else {
+      control = (
+        <div className="flex flex-wrap gap-x-5 gap-y-2 pt-1">
+          {(field.options ?? []).map((opt) => {
+            const val = typeof opt === 'object' ? opt.value : opt;
+            const lbl = typeof opt === 'object' ? opt.label : opt;
+            return (
+              <label
+                key={val}
+                className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  name={field.name}
+                  value={val}
+                  checked={value === val}
+                  onChange={() => onChange(field.name, val)}
+                  className="accent-[#0F9D7A]"
+                />
+                {lbl}
+              </label>
+            );
+          })}
+        </div>
+      );
+    }
 
   } else if (isCheckbox) {
     return (
@@ -230,13 +247,16 @@ const FormModal = ({
                     Math.min(field.span ?? 1, columns)
                   ] ?? 'col-span-1';
 
+                // editDisabled fields are locked in edit mode (e.g. category_type)
+                const fieldDisabled = isView || (mode === 'edit' && !!field.editDisabled);
+
                 return (
                   <div key={field.name} className={span}>
                     <FieldRenderer
                       field={field}
                       value={values[field.name]}
                       error={errors[field.name]}
-                      disabled={isView}
+                      disabled={fieldDisabled}
                       onChange={handleChange}
                     />
                   </div>
