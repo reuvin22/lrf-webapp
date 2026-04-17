@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Enable class-based dark mode: add/remove `dark` on <html> to toggle */
+@variant dark (&:is(.dark, .dark *));
+
 @keyframes modal-in {
   from {
     opacity: 0;
