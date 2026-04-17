@@ -33,15 +33,15 @@ function Sidenav() {
 
   return (
     <div
-      className={`shrink-0 h-screen flex flex-col bg-[#1C2536] text-white transition-all duration-300 ease-in-out
+      className={`shrink-0 h-screen flex flex-col bg-white dark:bg-[#1C2536] border-r border-gray-200 dark:border-transparent text-gray-800 dark:text-white transition-all duration-300 ease-in-out
         ${collapsed ? 'w-16' : 'w-64'} relative`}
     >
       {/* Header — fixed, never scrolls */}
       <div className="shrink-0 p-4">
         {!collapsed && (
           <>
-            <h2 className="text-sm font-semibold">工事管理システム</h2>
-            <p className="text-xs text-gray-400">Construction Admin</p>
+            <h2 className="text-sm font-semibold text-gray-800 dark:text-white">工事管理システム</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Construction Admin</p>
           </>
         )}
       </div>
@@ -104,7 +104,7 @@ function Sidenav() {
 
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="cursor-pointer absolute -right-3 top-6 bg-white text-black rounded-full p-1 shadow"
+        className="cursor-pointer absolute -right-3 top-6 bg-white dark:bg-gray-700 text-gray-600 dark:text-white rounded-full p-1 shadow border border-gray-200 dark:border-transparent"
       >
         {collapsed ? <FaChevronRight /> : <FaChevronLeft />}
       </button>

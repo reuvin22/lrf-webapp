@@ -8,7 +8,7 @@ function Section({ title, children, collapsed, open, onClick }) {
       {!collapsed && (
         <div
           onClick={onClick}
-          className="cursor-pointer flex items-center justify-between text-xs text-gray-400 mt-4 mb-1 px-2 cursor-pointer hover:text-emerald-400 transition"
+          className="cursor-pointer flex items-center justify-between text-xs text-gray-400 dark:text-gray-400 mt-4 mb-1 px-2 hover:text-emerald-500 dark:hover:text-emerald-400 transition"
         >
           <span>{title}</span>
 
