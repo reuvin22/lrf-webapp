@@ -6,9 +6,20 @@ export const WORKERS_COLUMNS = [
 ];
 
 export const WORKERS_FIELDS = [
-  { name: 'name', label: 'Full Name', type: 'text', required: true, placeholder: 'e.g. Taro Yamada', span: 1 },
-  { name: 'name_kana', label: 'Kana', type: 'text', required: true, placeholder: 'e.g. YAMADA TARO', span: 1 },
-  { name: 'status', label: 'Status', type: 'radio', required: true, options: ['ACTIVE', 'RESIGNED'], span: 1 }
+  { name: 'name',       label: 'Full Name', type: 'text', required: true, placeholder: 'e.g. Taro Yamada',  span: 1 },
+  { name: 'name_kana',  label: 'Kana',      type: 'text', required: true, placeholder: 'e.g. YAMADA TARO', span: 1 },
+  {
+    name: 'subcontractor_id',
+    label: 'Subcontractor',
+    type: 'autocomplete',
+    required: false,
+    placeholder: 'Search subcontractor...',
+    valueKey: 'id',
+    labelKey: 'company_name',
+    options: [],
+    span: 1,
+  },
+  { name: 'status', label: 'Status', type: 'radio', required: true, options: ['ACTIVE', 'INACTIVE'], span: 1 },
 ];
 
 export const WORKERS_INITIAL_DATA = [
@@ -18,6 +29,6 @@ export const WORKERS_INITIAL_DATA = [
 ];
 
 export const WORKER_STATUS_OPTIONS = [
-  { value: 'status', label: 'Active' },
-  { value: 'status', label: 'Resigned' },
+  { value: 'ACTIVE',   label: 'Active' },
+  { value: 'INACTIVE', label: 'Inactive' },
 ];

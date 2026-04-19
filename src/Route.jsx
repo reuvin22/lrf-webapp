@@ -12,6 +12,9 @@ import Rates from './Pages/Master/Rates';
 import Subcontractors from './Pages/Master/Subcontractors';
 import Categories from './Pages/Master/Categories';
 import SiteAssignments from './Pages/Master/SiteAssignments';
+import Calendar from './Pages/Master/Calendar';
+import Settings from './Pages/Master/Settings';
+import OcrManagement from './Pages/OcrManagement';
 
 function AppRoutes() {
   return (
@@ -22,6 +25,7 @@ function AppRoutes() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/table" element={<Table />} />
         <Route path="/attendance-list" element={<AttendanceList />} />
+        <Route path="/ocr-management" element={<OcrManagement />} />
 
         <Route path="/master">
           <Route path="employees" element={<Employee />} />
@@ -31,6 +35,8 @@ function AppRoutes() {
           <Route path="subcontractors" element={<Subcontractors />} />
           <Route path="categories" element={<Categories />} />
           <Route path="site-assignments" element={<SiteAssignments />} />
+          <Route path="calendar" element={<Calendar />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Route>
     </Routes>

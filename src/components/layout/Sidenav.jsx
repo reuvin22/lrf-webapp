@@ -82,7 +82,7 @@ function Sidenav() {
           <MenuItem icon={<FaFileInvoice />}label="Dotto Genka"   collapsed={collapsed} />
         </Section>
 
-        <MenuItem icon={<FaFileInvoice />} label="OCR Management" collapsed={collapsed} />
+        <MenuItem icon={<FaFileInvoice />} label="OCR Management" collapsed={collapsed} to="/ocr-management" />
 
         <Section
           title="MASTER DATA"
@@ -96,9 +96,8 @@ function Sidenav() {
           <MenuItem icon={<FaHardHat />}     label="Workers"          collapsed={collapsed} to="/master/workers"          />
           <MenuItem icon={<FaLink />}        label="Site Assignments"  collapsed={collapsed} to="/master/site-assignments" />
           <MenuItem icon={<FaMoneyBill />}   label="Rates"            collapsed={collapsed} to="/master/rates"            />
-          <MenuItem icon={<FaCalendarAlt />} label="Calendar"         collapsed={collapsed} />
-          <MenuItem icon={<FaTags />}        label="Categories"       collapsed={collapsed} to="/master/categories"       />
-          <MenuItem icon={<FaCog />}         label="Settings"         collapsed={collapsed} />
+          <MenuItem icon={<FaCalendarAlt />} label="Calendar"         collapsed={collapsed} to="/master/calendar" />          <MenuItem icon={<FaTags />}        label="Categories"       collapsed={collapsed} to="/master/categories"       />
+          <MenuItem icon={<FaCog />}         label="Settings"         collapsed={collapsed} to="/master/settings" />
         </Section>
       </div>
 

@@ -74,12 +74,14 @@ export const EMPLOYEE_FIELDS = [
   { name: 'name_kana', label: 'Kana', type: 'text', required: true, placeholder: 'e.g. YAMADA TARO', span: 1 },
   { name: 'email', label: 'Email', type: 'email', required: true, placeholder: 'e.g. taro.yamada@company.com', span: 1 },
   { name: 'role', label: 'Role', type: 'select', required: true, options: ['GENERAL', 'ADMIN', 'ACCOUNTING'], span: 1 },
+  { name: 'employment_type', label: 'Employment Type', type: 'select', required: true, options: ['FULL_TIME', 'PART_TIME', 'CONTRACT'], span: 1 },
+  { name: 'base_salary', label: 'Base Salary', type: 'number', required: true, placeholder: 'e.g. 200', span: 1 },
   { name: 'monthly_work_hours', label: 'Monthly Work Hours', type: 'number', required: true, placeholder: 'e.g. 160', span: 1 },
   { name: 'cost_rate', label: 'Cost Rate', type: 'number', required: true, placeholder: '¥25,000', span: 1 },
   { name: 'commute_cost_monthly', label: 'Monthly Commute Cost', type: 'number', required: true, placeholder: '¥5,000', span: 1 },
   { name: 'joined_date', label: 'Join Date', type: 'date', required: true, span: 1 },
   { name: 'line', label: 'LINE Status', type: 'radio', required: true, options: ['Linked', 'Not Linked'], span: 1 },
-  { name: 'status', label: 'Status', type: 'radio', required: true, options: ['ACTIVE', 'INACTIVE'], span: 1 }
+  { name: 'status', label: 'Status', type: 'radio', required: true, options: ['ACTIVE', 'RESIGNED'], span: 1 }
 ];
 export const EMPLOYEE_INITIAL_DATA = [
   {
@@ -116,5 +118,5 @@ export const EMPLOYEE_INITIAL_DATA = [
 
 export const EMPLOYEE_STATUS_OPTIONS = [
   { value: 'ACTIVE', label: 'Active' },
-  { value: 'NOT_ACTIVE', label: 'Resigned' },
+  { value: 'RESIGNED', label: 'Resigned' },
 ];

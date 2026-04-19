@@ -9,10 +9,10 @@ import {
 } from '../../constants/CategoriesConstants';
 
 import {
-  useGetCategoriesQuery,
-  useCreateCategoriesMutation,
-  useUpdateCategoriesMutation,
-  useDeleteCategoriesMutation,
+  useGetSiteExpenseCategoriesQuery,
+  useCreateSiteExpenseCategoryMutation,
+  useUpdateSiteExpenseCategoryMutation,
+  useDeleteSiteExpenseCategoryMutation,
   useGetOcrCategoriesQuery,
   useCreateOcrCategoryMutation,
   useUpdateOcrCategoryMutation,
@@ -22,11 +22,11 @@ import {
 function Categories() {
   const [activeTab, setActiveTab] = useState('expense');
 
-  // ── Expense queries / mutations ────────────────────────────────────────────
-  const { data: expenseData = [], isLoading: expenseLoading } = useGetCategoriesQuery();
-  const [createExpense]  = useCreateCategoriesMutation();
-  const [updateExpense]  = useUpdateCategoriesMutation();
-  const [deleteExpense]  = useDeleteCategoriesMutation();
+  // ── Site Expense Category queries / mutations ──────────────────────────────
+  const { data: expenseData = [], isLoading: expenseLoading } = useGetSiteExpenseCategoriesQuery();
+  const [createExpense] = useCreateSiteExpenseCategoryMutation();
+  const [updateExpense] = useUpdateSiteExpenseCategoryMutation();
+  const [deleteExpense] = useDeleteSiteExpenseCategoryMutation();
 
   // ── OCR queries / mutations ────────────────────────────────────────────────
   const { data: ocrData = [], isLoading: ocrLoading } = useGetOcrCategoriesQuery();
@@ -50,9 +50,15 @@ function Categories() {
   const handleEdit = async (payload) => {
     try {
       if (payload.category_type === 'ocr') {
-        await updateOcr(payload).unwrap();
+        await updateOcr({
+          ...payload,
+          category_id: payload.category_id ?? payload.id,
+        }).unwrap();
       } else {
-        await updateExpense(payload).unwrap();
+        await updateExpense({
+          ...payload,
+          site_expense_category_id: payload.site_expense_category_id ?? payload.id,
+        }).unwrap();
       }
     } catch (err) {
       throw err;
@@ -62,9 +68,9 @@ function Categories() {
   const handleDelete = async (row) => {
     try {
       if (row.category_type === 'ocr') {
-        await deleteOcr(row.category_id).unwrap();
+        await deleteOcr(row.category_id ?? row.id).unwrap();
       } else {
-        await deleteExpense(row.category_id).unwrap();
+        await deleteExpense(row.site_expense_category_id ?? row.id).unwrap();
       }
     } catch (err) {
       throw err;
@@ -72,12 +78,15 @@ function Categories() {
   };
 
   const isExpense = activeTab === 'expense';
+  const tableData = isExpense
+    ? expenseData.filter((c) => c.category_type === 'expense')
+    : ocrData.filter((c) => c.category_type === 'ocr');
 
   return (
     <Table
       title="Categories"
       columns={CATEGORY_COLUMNS}
-      data={isExpense ? expenseData : ocrData}
+      data={tableData}
       loading={isExpense ? expenseLoading : ocrLoading}
       fields={CATEGORY_FIELDS}
       formColumns={2}

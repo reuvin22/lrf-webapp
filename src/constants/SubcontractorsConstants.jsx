@@ -7,7 +7,7 @@ export const SUBCONTRACTORS_COLUMNS = [
     label: 'Status',
     align: 'center',
     render: (value) => {
-      const active = value === true || value === 1;
+      const active = value === true || value === 1 || value === 'ACTIVE';
       return (
         <span
           className={`px-3 py-1 rounded-md text-xs font-bold text-white ${
@@ -52,8 +52,8 @@ export const SUBCONTRACTORS_FIELDS = [
     type: 'radio',
     required: true,
     options: [
-      { value: true,  label: 'Active' },
-      { value: false, label: 'Terminated' },
+      { value: 'ACTIVE',  label: 'ACTIVE' },
+      { value: 'TERMINATED', label: 'TERMINATED' },
     ],
     span: 1,
   },

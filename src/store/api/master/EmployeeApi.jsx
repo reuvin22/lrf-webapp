@@ -9,8 +9,13 @@ export const employeeApiSlice = createApi({
 
     getEmployees: builder.query({
       query: () => ({ url: '/employees', method: 'GET' }),
-      transformResponse: (response) =>
-        (response.data ?? []).map((emp) => ({ ...emp, id: emp.employee_id })),
+      transformResponse: (response) => {
+        const items = Array.isArray(response) ? response : (response.data ?? []);
+        return items.map((emp) => {
+          const pk = emp.employee_id ?? emp.id;
+          return { ...emp, id: pk, employee_id: pk };
+        });
+      },
       providesTags: ['Employee'],
     }),
 

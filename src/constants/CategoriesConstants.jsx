@@ -23,11 +23,11 @@ export const CATEGORY_FIELDS = [
     span: 2,
   },
   { name: 'category_name',        label: 'Category Name', type: 'text',     required: true,  placeholder: 'e.g. Labour Cost',     span: 1 },
-  { name: 'status',      label: 'Status',        type: 'radio',    required: true,  options: ['Active', 'Inactive'],     span: 1 },
+  { name: 'status',      label: 'Status', type: 'radio',    required: true,  options: ['ACTIVE', 'INACTIVE'], span: 1 },
   { name: 'description', label: 'Description',   type: 'textarea', required: false, placeholder: 'Brief description...', span: 2, rows: 3 },
 ];
 
 export const CATEGORY_STATUS_OPTIONS = [
-  { value: 'Active',   label: 'Active' },
-  { value: 'Inactive', label: 'Inactive' },
+  { value: 'ACTIVE',   label: 'ACTIVE' },
+  { value: 'INACTIVE', label: 'INACTIVE' },
 ];

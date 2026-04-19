@@ -9,8 +9,13 @@ export const siteApiSlice = createApi({
 
     getSites: builder.query({
       query: () => ({ url: '/sites', method: 'GET' }),
-      transformResponse: (response) =>
-        (response.data ?? []).map((site) => ({ ...site, id: site.site_id })),
+      transformResponse: (response) => {
+        const items = Array.isArray(response) ? response : (response.data ?? []);
+        return items.map((site) => {
+          const pk = site.site_id ?? site.id;
+          return { ...site, id: pk, site_id: pk };
+        });
+      },
       providesTags: ['Site'],
     }),
 

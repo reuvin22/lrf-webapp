@@ -10,10 +10,10 @@ export const workerApiSlice = createApi({
     getWorkers: builder.query({
       query: () => ({ url: '/subcontractor-workers', method: 'GET' }),
       transformResponse: (response) =>
-        (response.data ?? []).map((worker) => ({
-          ...worker,
-          id: worker.site_worker_id,
-        })),
+        (response.data ?? []).map((worker) => {
+          const pk = worker.site_worker_id ?? worker.worker_id ?? worker.id;
+          return { ...worker, id: pk, site_worker_id: pk };
+        }),
       providesTags: ['Worker'],
     }),
 
@@ -23,8 +23,8 @@ export const workerApiSlice = createApi({
     }),
 
     updateWorker: builder.mutation({
-      query: ({ site_worker_id, ...data }) => ({
-        url: `/subcontractor-workers/${site_worker_id}`,
+      query: ({ worker_id, ...data }) => ({
+        url: `/subcontractor-workers/${worker_id}`,
         method: 'PUT',
         data,
       }),
@@ -32,8 +32,8 @@ export const workerApiSlice = createApi({
     }),
 
     deleteWorker: builder.mutation({
-      query: (site_worker_id) => ({
-        url: `/subcontractor-workers/${site_worker_id}`,
+      query: (worker_id) => ({
+        url: `/subcontractor-workers/${worker_id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Worker'],

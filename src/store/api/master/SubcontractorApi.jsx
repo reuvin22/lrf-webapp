@@ -10,10 +10,10 @@ export const subcontractorApiSlice = createApi({
     getSubcontractors: builder.query({
       query: () => ({ url: '/subcontractors', method: 'GET' }),
       transformResponse: (response) =>
-        (response.data ?? []).map((sub) => ({
-          ...sub,
-          id: sub.site_subcontractor_id,
-        })),
+        (response.data ?? []).map((sub) => {
+          const pk = sub.site_subcontractor_id ?? sub.subcontractor_id ?? sub.id;
+          return { ...sub, id: pk, site_subcontractor_id: pk };
+        }),
       providesTags: ['Subcontractor'],
     }),
 

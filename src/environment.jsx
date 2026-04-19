@@ -1,5 +1,5 @@
 const environment = {
-  VITE_API_BASE_URL: 'https://miraboes.com/lrf-be/public/api/v1/',
+  VITE_API_BASE_URL: 'http://127.0.0.1:8000/api/v1/',
 };
 
 export default environment

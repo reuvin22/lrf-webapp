@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, ChevronDown, Eye, Pencil, UserMinus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Plus, ChevronDown, Pencil, UserMinus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'react-toastify';
 import ConfirmModal from './modals/ConfirmModal';
 import FormModal from './modals/FormModal';
@@ -32,6 +32,8 @@ const Table = ({
   searchPlaceholder = 'Search...',
   statusOptions = [],
   statusFilterKey = 'status',
+  initialStatusFilter = '',
+  extraFilters = [],
   addTitle,
   editTitle,
   viewTitle,
@@ -39,10 +41,14 @@ const Table = ({
   onAdd,
   onEdit,
   onDelete,
+  onRowClick,
 }) => {
   const [records, setRecords]             = useState(dataProp ?? []);
   const [search, setSearch]               = useState('');
-  const [statusFilter, setStatusFilter]   = useState('');
+  const [statusFilter, setStatusFilter]     = useState(initialStatusFilter);
+  const [extraFilterVals, setExtraFilterVals] = useState(
+    () => Object.fromEntries(extraFilters.map((f) => [f.key, f.initialValue ?? '']))
+  );
   const [page, setPage]                   = useState(1);
   const [formModal, setFormModal]         = useState({ isOpen: false, mode: 'add', record: null });
   const [pendingDelete, setPendingDelete] = useState(null);
@@ -62,7 +68,10 @@ const Table = ({
         String(row[k] ?? '').toLowerCase().includes(search.toLowerCase())
       );
     const matchesStatus = !statusFilter || row[statusFilterKey] === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesExtra  = extraFilters.every((f) =>
+      !extraFilterVals[f.key] || String(row[f.key] ?? '') === String(extraFilterVals[f.key])
+    );
+    return matchesSearch && matchesStatus && matchesExtra;
   });
 
   const totalPages  = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -78,6 +87,7 @@ const Table = ({
 
   const handleFormSubmit = async (values) => {
     setSubmitting(true);
+    console.log(values)
     try {
       if (formModal.mode === 'add') {
         const newRecord = { id: Date.now(), ...values };
@@ -128,7 +138,7 @@ const Table = ({
       return (
         <span
           className={`px-3 py-1 rounded-md text-xs font-bold text-white ${
-            value === 'Active' ? 'bg-[#1D69D7]' : 'bg-gray-400'
+            String(value ?? '').toUpperCase() === 'ACTIVE' ? 'bg-[#1D69D7]' : String(value ?? '').toUpperCase() === 'RESIGNED' ? 'bg-[#EF4444]' : 'bg-gray-400'
           }`}
         >
           {value}
@@ -145,7 +155,8 @@ const Table = ({
       );
     }
 
-    return <span className="text-sm text-gray-800 dark:text-gray-200">{value ?? '—'}</span>;
+    const display = value !== null && value !== undefined && typeof value === 'object' ? '—' : (value ?? '—');
+    return <span className="text-sm text-gray-800 dark:text-gray-200">{display}</span>;
   };
 
   const thAlign = (align) => {
@@ -164,13 +175,15 @@ const Table = ({
         {/* ── Header ─────────────────────────────────────────────────────────── */}
         <div className="p-4 md:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 dark:border-gray-700">
           <h1 className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100">{title}</h1>
-          <button
-            onClick={openAdd}
-            className="cursor-pointer w-full sm:w-auto bg-[#1D69D7] hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 text-sm font-medium transition-colors whitespace-nowrap"
-          >
-            <Plus size={18} />
-            Add New
-          </button>
+          {onAdd && (
+            <button
+              onClick={openAdd}
+              className="cursor-pointer w-full sm:w-auto bg-[#1D69D7] hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center justify-center gap-2 text-sm font-medium transition-colors whitespace-nowrap"
+            >
+              <Plus size={18} />
+              Add New
+            </button>
+          )}
         </div>
 
         {/* ── Segment Tabs ────────────────────────────────────────────────────── */}
@@ -211,17 +224,29 @@ const Table = ({
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="cursor-pointer appearance-none h-full pl-3 pr-8 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 whitespace-nowrap transition-colors"
               >
-                <option value="">All Statuses</option>
+                <option value="">All Status</option>
                 {statusOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </select>
-              <ChevronDown
-                className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
-                size={14}
-              />
+              <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={14} />
             </div>
           )}
+          {extraFilters.map((f) => (
+            <div key={f.key} className="relative">
+              <select
+                value={extraFilterVals[f.key] ?? ''}
+                onChange={(e) => setExtraFilterVals((prev) => ({ ...prev, [f.key]: e.target.value }))}
+                className="cursor-pointer appearance-none h-full pl-3 pr-8 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 whitespace-nowrap transition-colors"
+              >
+                <option value="">{f.placeholder ?? `All ${f.label ?? ''}`}</option>
+                {f.options.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={14} />
+            </div>
+          ))}
         </div>
 
         {/* ── Table ──────────────────────────────────────────────────────────── */}
@@ -237,9 +262,11 @@ const Table = ({
                     {col.label}
                   </th>
                 ))}
-                <th className="px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right whitespace-nowrap">
-                  Actions
-                </th>
+                {(onEdit || onDelete) && (
+                  <th className="px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right whitespace-nowrap">
+                    Actions
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -271,7 +298,11 @@ const Table = ({
               ) : (
                 <>
                   {pageRows.map((row) => (
-                    <tr key={row.id} className="hover:bg-gray-50/60 dark:hover:bg-gray-700/40 transition-colors h-[53px]">
+                    <tr
+                      key={row.id}
+                      onClick={() => onRowClick ? onRowClick(row) : openView(row)}
+                      className="cursor-pointer hover:bg-gray-50/60 dark:hover:bg-gray-700/40 transition-colors h-[53px]"
+                    >
                       {columns.map((col) => (
                         <td
                           key={col.key}
@@ -280,31 +311,30 @@ const Table = ({
                           {renderCell(col, row[col.key])}
                         </td>
                       ))}
-                      <td className="px-5 py-3 whitespace-nowrap">
-                        <div className="flex justify-end gap-3 text-gray-400 dark:text-gray-500">
-                          <button
-                            onClick={() => openView(row)}
-                            className="cursor-pointer hover:text-[#0F9D7A] transition-colors"
-                            aria-label="View"
-                          >
-                            <Eye size={15} />
-                          </button>
-                          <button
-                            onClick={() => openEdit(row)}
-                            className="cursor-pointer hover:text-blue-500 transition-colors"
-                            aria-label="Edit"
-                          >
-                            <Pencil size={15} />
-                          </button>
-                          <button
-                            onClick={() => setPendingDelete(row)}
-                            className="cursor-pointer hover:text-red-700 transition-colors"
-                            aria-label="Delete"
-                          >
-                            <UserMinus size={15} />
-                          </button>
-                        </div>
-                      </td>
+                      {(onEdit || onDelete) && (
+                        <td className="px-5 py-3 whitespace-nowrap">
+                          <div className="flex justify-end gap-3 text-gray-400 dark:text-gray-500">
+                            {onEdit && (
+                              <button
+                                onClick={(e) => { e.stopPropagation(); openEdit(row); }}
+                                className="cursor-pointer hover:text-blue-500 transition-colors"
+                                aria-label="Edit"
+                              >
+                                <Pencil size={15} />
+                              </button>
+                            )}
+                            {onDelete && (
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setPendingDelete(row); }}
+                                className="cursor-pointer hover:text-red-700 transition-colors"
+                                aria-label="Delete"
+                              >
+                                <UserMinus size={15} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))}
                   {Array.from({ length: fillerCount }).map((_, i) => (

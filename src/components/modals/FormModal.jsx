@@ -1,150 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import {
   FORM_MODAL_COLS_CLASS,
   FORM_MODAL_SPAN_CLASS,
   FORM_MODAL_MAX_W_CLASS,
   FORM_MODAL_MODE_DEFAULTS,
-  FORM_MODAL_INPUT_BASE,
 } from '../../constants/ComponentConstants/modals/FormConstants';
 import Button from '../Button';
+import FieldRenderer from './FieldRenderer';
 
-const FieldRenderer = ({ field, value, error, disabled, onChange }) => {
-  const isCheckbox = field.type === 'checkbox';
-  const label = !isCheckbox && (
-    <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
-      {field.label}
-      {field.required && !disabled && (
-        <span className="text-[#EF4444] ml-0.5">*</span>
-      )}
-    </label>
-  );
-
-  let control;
-
-  if (field.type === 'textarea') {
-    control = (
-      <textarea
-        name={field.name}
-        value={value ?? ''}
-        placeholder={disabled ? '' : field.placeholder ?? ''}
-        disabled={disabled}
-        required={field.required}
-        rows={field.rows ?? 3}
-        onChange={(e) => onChange(field.name, e.target.value)}
-        className={`${FORM_MODAL_INPUT_BASE} resize-none`}
-      />
-    );
-
-  } else if (field.type === 'select') {
-    control = (
-      <div className="relative">
-        <select
-          name={field.name}
-          value={value ?? ''}
-          disabled={disabled}
-          required={field.required}
-          onChange={(e) => onChange(field.name, e.target.value)}
-          className={`${FORM_MODAL_INPUT_BASE} appearance-none pr-8`}
-        >
-          <option value="">
-            {field.placeholder ?? `Select ${field.label}`}
-          </option>
-          {(field.options ?? []).map((opt) => {
-            const val = typeof opt === 'object' ? opt.value : opt;
-            const lbl = typeof opt === 'object' ? opt.label : opt;
-            return <option key={val} value={val}>{lbl}</option>;
-          })}
-        </select>
-      </div>
-    );
-
-  } else if (field.type === 'radio') {
-    if (disabled) {
-      // View mode — show the current value as a readable pill instead of
-      // disabled radio inputs (avoids checked-state visibility issues).
-      const matched = (field.options ?? []).find((opt) => {
-        const val = typeof opt === 'object' ? opt.value : opt;
-        return val === value;
-      });
-      const display = matched
-        ? (typeof matched === 'object' ? matched.label : matched)
-        : (value ?? '—');
-
-      control = (
-        <div className="pt-1">
-          <span className="inline-block px-3 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-            {display}
-          </span>
-        </div>
-      );
-    } else {
-      control = (
-        <div className="flex flex-wrap gap-x-5 gap-y-2 pt-1">
-          {(field.options ?? []).map((opt) => {
-            const val = typeof opt === 'object' ? opt.value : opt;
-            const lbl = typeof opt === 'object' ? opt.label : opt;
-            return (
-              <label
-                key={val}
-                className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
-              >
-                <input
-                  type="radio"
-                  name={field.name}
-                  value={val}
-                  checked={value === val}
-                  onChange={() => onChange(field.name, val)}
-                  className="accent-[#0F9D7A]"
-                />
-                {lbl}
-              </label>
-            );
-          })}
-        </div>
-      );
-    }
-
-  } else if (isCheckbox) {
-    return (
-      <div className="flex flex-col justify-end h-full pt-5">
-        <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-          <input
-            type="checkbox"
-            name={field.name}
-            checked={!!value}
-            disabled={disabled}
-            onChange={(e) => onChange(field.name, e.target.checked)}
-            className="accent-[#0F9D7A] w-4 h-4 rounded"
-          />
-          {field.checkboxLabel ?? field.label}
-        </label>
-        {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
-      </div>
-    );
-
-  } else {
-    control = (
-      <input
-        type={field.type ?? 'text'}
-        name={field.name}
-        value={value ?? ''}
-        placeholder={disabled ? '' : field.placeholder ?? ''}
-        disabled={disabled}
-        required={field.required}
-        onChange={(e) => onChange(field.name, e.target.value)}
-        className={FORM_MODAL_INPUT_BASE}
-      />
-    );
-  }
-
-  return (
-    <div>
-      {label}
-      {control}
-      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
-    </div>
-  );
+const toDateInputValue = (v) => {
+  if (!v) return '';
+  const match = String(v).match(/^(\d{4}-\d{2}-\d{2})/);
+  if (match) return match[1];
+  const d = new Date(v);
+  if (isNaN(d.getTime())) return '';
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
 const FormModal = ({
@@ -161,15 +32,20 @@ const FormModal = ({
 }) => {
   const [values, setValues] = useState({});
   const [errors, setErrors] = useState({});
+  const wasOpenRef = useRef(false);
 
   useEffect(() => {
-    if (!isOpen) return;
+    const justOpened = isOpen && !wasOpenRef.current;
+    wasOpenRef.current = isOpen;
+
+    if (!justOpened) return;
 
     const seed = {};
     fields.forEach((f) => {
+      const raw = initialValues[f.name];
       seed[f.name] =
-        initialValues[f.name] !== undefined
-          ? initialValues[f.name]
+        raw !== undefined
+          ? f.type === 'date' ? toDateInputValue(raw) : raw
           : f.type === 'checkbox'
           ? false
           : '';
@@ -182,23 +58,25 @@ const FormModal = ({
   if (!isOpen) return null;
 
   const isView = mode === 'view';
-  const defaults =
-    FORM_MODAL_MODE_DEFAULTS[mode] ?? FORM_MODAL_MODE_DEFAULTS.add;
+  const defaults = FORM_MODAL_MODE_DEFAULTS[mode] ?? FORM_MODAL_MODE_DEFAULTS.add;
 
   const resolvedTitle = title ?? defaults.title;
-  const resolvedSubmitLabel =
-    submitLabel ?? defaults.submitLabel ?? 'Save';
+  const resolvedSubmitLabel = submitLabel ?? defaults.submitLabel ?? 'Save';
 
-  const gridCols =
-    FORM_MODAL_COLS_CLASS[columns] ?? 'grid-cols-2';
-
-  const maxW =
-    FORM_MODAL_MAX_W_CLASS[columns] ?? 'max-w-2xl';
+  const gridCols = FORM_MODAL_COLS_CLASS[columns] ?? 'grid-cols-2';
+  const maxW = FORM_MODAL_MAX_W_CLASS[columns] ?? 'max-w-2xl';
 
   const handleChange = (name, value) => {
-    setValues((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: null }));
+    const field = fields.find((f) => f.name === name);
+    const updates = { [name]: value };
+    if (field?.clearOnChange) {
+      field.clearOnChange.forEach((dep) => { updates[dep] = ''; });
+    }
+    setValues((prev) => ({ ...prev, ...updates }));
+    const clearedErrors = { ...(field?.clearOnChange ?? []).reduce((acc, dep) => ({ ...acc, [dep]: null }), {}) };
+    if (errors[name]) clearedErrors[name] = null;
+    if (Object.keys(clearedErrors).length) {
+      setErrors((prev) => ({ ...prev, ...clearedErrors }));
     }
   };
 
@@ -247,7 +125,6 @@ const FormModal = ({
                     Math.min(field.span ?? 1, columns)
                   ] ?? 'col-span-1';
 
-                // editDisabled fields are locked in edit mode (e.g. category_type)
                 const fieldDisabled = isView || (mode === 'edit' && !!field.editDisabled);
 
                 return (
@@ -255,6 +132,8 @@ const FormModal = ({
                     <FieldRenderer
                       field={field}
                       value={values[field.name]}
+                      allValues={values}
+                      sourceValues={initialValues}
                       error={errors[field.name]}
                       disabled={fieldDisabled}
                       onChange={handleChange}
